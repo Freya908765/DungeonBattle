@@ -19,6 +19,10 @@ function preload() {
     wallRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_middle_long_r.png')
     wallBImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_middle_b.png')
     wallLImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_middle_long_l.png')
+    wallTLImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_tl.png')
+    wallTRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_tr.png')
+    wallBLImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_bl.png')
+    wallBRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_br.png')
 }
 
 function tileSetup() {
@@ -61,6 +65,38 @@ function tileSetup() {
     wallL.w = tileSize/4;
     wallL.h = tileSize;
     wallL.layer = 1
+
+    wallTL = new Group();
+    wallTL.collider = 's';
+    wallTL.image = wallTLImg;
+    wallTL.tile = 'l';
+    wallTL.w = tileSize/4;
+    wallTL.h = tileSize;
+    wallTL.layer = 1
+
+    wallTR = new Group();
+    wallTR.collider = 's';
+    wallTR.image = wallTRImg;
+    wallTR.tile = 'r';
+    wallTR.w = tileSize/4;
+    wallTR.h = tileSize;
+    wallTR.layer = 1
+
+    wallBL = new Group();
+    wallBL.collider = 's';
+    wallBL.image = wallBLImg;
+    wallBL.tile = 'k';
+    wallBL.w = tileSize/4;
+    wallBL.h = tileSize;
+    wallBL.layer = 1
+
+    wallBR = new Group();
+    wallBR.collider = 's';
+    wallBR.image = wallBRImg;
+    wallBR.tile = 'K';
+    wallBR.w = tileSize/4;
+    wallBR.h = tileSize;
+    wallBR.layer = 1
 
     sFloor = new Group();
     sFloor.collider = 'n';
@@ -134,29 +170,29 @@ function levelSetup() {
     tilemaps = [
         [
         "gggggggggggggggggtgTggggg",
-        "gggWWWWWWWggtggggggTgtggg",
-        "gggLFFFFFWWWWWWggggTggggg",
+        "ggglWWWWWrggtggggggTgtggg",
+        "gggLFFFFFkWWWWrggggTggggg",
         "ggtLFFFFFFFFFFRggggTggggg",
         "gggLFFFFFFFFFFRggggTggggg",
         "gggLFFFFFFFFFFRggggTggggg",
-        "gggLFFFFFWwDwwWggggTggggt",
+        "gggLFFFFFlwDwwKggggTggggt",
         "tggLFFFFFRgPgggggggTtgggg",
         "gggLFFFFFRgPPPPPPPgTggggg",
         "gggLFFFFFRgPgggtgPgTTTTTT",
         "gggLFFFFFRgPgggggPgggtggg",
-        "gggWwwDwwWgPtggggPggggggg",
+        "gggkwwDwwKgPtggggPggggggg",
         "gtggggPggggPgggggPggggggg",
         "PPPPPPPPPPPPgggggPgggggtg",
         "ggggtggPgtgggggggPgtggggg",
         "tggggggPggggggtggPPPPPPPP",
-        "gggggWWDWWWWWWgggggggggPt",
-        "ggggtLFFFFFFFRgWWWWWWWgPg",
-        "gggggLFFFFFFFWWWFFFFFRgPg",
+        "ggggglWDWWWWWrgggggggggPt",
+        "ggggtLFFFFFFFRglWWWWWrgPg",
+        "gggggLFFFFFFFkWKFFFFFRgPg",
         "gtgggLFFFFFFFDFDFFFFFRtPg",
-        "gggggLFFFFFFFRWWFFFFFRgPg",
-        "ggggtWwwwwwwwWgWFFFFFDPPg",
+        "gggggLFFFFFFFlWrFFFFFRgPg",
+        "ggggtkwwwwwwwKgWFFFFFDPPg",
         "gggggggggggggtgLFFFFFRggg",
-        "gtgggggggggggggWwwwwwWggg",
+        "gtgggggggggggggkwwwwwKggg",
         "ggggggtggggggggggggggggtg",
         ]
     ]
