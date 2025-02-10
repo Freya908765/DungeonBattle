@@ -2,11 +2,25 @@ let tileSize = 128
 let tilemapCount = 0
 let playerSpeed = 6.5
 let ease = 0.9
+let bowActive = false
+let arrowAngled = false
+let arrowExists = false
+let angle, adj, opp, hyp
+let tempx, tempy
+let arrowsUsed
+let bRotate = false
+let rotVal
 
 function preload() {
     cursorImg = loadImage('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
     playerSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_character.png')
     handsSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_hands.png')
+
+    arrowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_arrow.png')
+    bowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_bow_arrow.png')
+    purpImg = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/purple_character.png')
+    splatImg = loadImage('kenney_splat-pack/PNG/Default/splat19.png')
+
     grassImg = loadImage('kenney_scribble-dungeons/PNG/Double/grass.png')
     woodFloorImg = loadImage('kenney_scribble-dungeons/PNG/Double/wood.png')
     stoneFloorImg = loadImage('kenney_scribble-dungeons/PNG/Double/tiles.png')
@@ -26,6 +40,8 @@ function preload() {
 }
 
 function tileSetup() {
+    blockable = new Group()
+
     grass = new Group();
     grass.collider = 'n';
     grass.image = grassImg;
@@ -34,69 +50,69 @@ function tileSetup() {
     grass.h = tileSize;
     grass.layer = 1
 
-    wallT = new Group();
+    wallT = new blockable.Group();
     wallT.collider = 's';
     wallT.image = wallTImg;
     wallT.tile = 'W';
     wallT.w = tileSize;
     wallT.h = tileSize/4;
-    wallT.layer = 1
+    wallT.layer = 3
 
-    wallB = new Group();
+    wallB = new blockable.Group();
     wallB.collider = 's';
     wallB.image = wallBImg;
     wallB.tile = 'w';
     wallB.w = tileSize;
     wallB.h = tileSize/4;
-    wallB.layer = 1
+    wallB.layer = 3
 
-    wallR = new Group();
+    wallR = new blockable.Group();
     wallR.collider = 's';
     wallR.image = wallRImg;
     wallR.tile = 'R';
     wallR.w = tileSize/4;
     wallR.h = tileSize;
-    wallR.layer = 1
+    wallR.layer = 3
 
-    wallL = new Group();
+    wallL = new blockable.Group();
     wallL.collider = 's';
     wallL.image = wallLImg;
     wallL.tile = 'L';
     wallL.w = tileSize/4;
     wallL.h = tileSize;
-    wallL.layer = 1
+    wallL.layer = 3
 
-    wallTL = new Group();
+    wallTL = new blockable.Group();
     wallTL.collider = 's';
     wallTL.image = wallTLImg;
     wallTL.tile = 'l';
-    wallTL.w = tileSize/4;
-    wallTL.h = tileSize;
-    wallTL.layer = 1
+    wallTL.w = tileSize/3;
+    wallTL.h = tileSize/3;
+    wallTL.layer = 3
 
-    wallTR = new Group();
+    wallTR = new blockable.Group();
     wallTR.collider = 's';
     wallTR.image = wallTRImg;
     wallTR.tile = 'r';
-    wallTR.w = tileSize/4;
-    wallTR.h = tileSize;
-    wallTR.layer = 1
+    wallTR.w = tileSize/3;
+    wallTR.h = tileSize/3;
+    wallTR.layer = 3
 
-    wallBL = new Group();
+    wallBL = new blockable.Group();
     wallBL.collider = 's';
     wallBL.image = wallBLImg;
     wallBL.tile = 'k';
-    wallBL.w = tileSize/4;
-    wallBL.h = tileSize;
-    wallBL.layer = 1
+    wallBL.w = tileSize/3;
+    wallBL.h = tileSize/3;
+    wallBL.layer = 3
 
-    wallBR = new Group();
+    wallBR = new blockable.Group();
     wallBR.collider = 's';
     wallBR.image = wallBRImg;
     wallBR.tile = 'K';
-    wallBR.w = tileSize/4;
-    wallBR.h = tileSize;
-    wallBR.layer = 1
+    wallBR.w = tileSize/3;
+    wallBR.h = tileSize/3;
+    wallBR.layer = 3
 
     sFloor = new Group();
     sFloor.collider = 'n';
@@ -130,7 +146,7 @@ function tileSetup() {
     track.h = tileSize;
     track.layer = 1
 
-    tree = new Group();
+    tree = new blockable.Group();
     tree.collider = 's';
     tree.image = treeImg;
     tree.tile = 't';
@@ -169,31 +185,31 @@ function levelSetup() {
         ]
     tilemaps = [
         [
-        "gggggggggggggggggtgTggggg",
-        "ggglWWWWWrggtggggggTgtggg",
-        "gggLFFFFFkWWWWrggggTggggg",
-        "ggtLFFFFFFFFFFRggggTggggg",
-        "gggLFFFFFFFFFFRggggTggggg",
-        "gggLFFFFFFFFFFRggggTggggg",
-        "gggLFFFFFlwDwwKggggTggggt",
-        "tggLFFFFFRgPgggggggTtgggg",
-        "gggLFFFFFRgPPPPPPPgTggggg",
-        "gggLFFFFFRgPgggtgPgTTTTTT",
-        "gggLFFFFFRgPgggggPgggtggg",
-        "gggkwwDwwKgPtggggPggggggg",
-        "gtggggPggggPgggggPggggggg",
-        "PPPPPPPPPPPPgggggPgggggtg",
-        "ggggtggPgtgggggggPgtggggg",
-        "tggggggPggggggtggPPPPPPPP",
-        "ggggglWDWWWWWrgggggggggPt",
-        "ggggtLFFFFFFFRglWWWWWrgPg",
-        "gggggLFFFFFFFkWKFFFFFRgPg",
-        "gtgggLFFFFFFFDFDFFFFFRtPg",
-        "gggggLFFFFFFFlWrFFFFFRgPg",
-        "ggggtkwwwwwwwKgWFFFFFDPPg",
-        "gggggggggggggtgLFFFFFRggg",
-        "gtgggggggggggggkwwwwwKggg",
-        "ggggggtggggggggggggggggtg",
+        ".................t.T.....",
+        "...lWWWWWr..t......T.t...",
+        "...LFFFFFkWWWWr....T.....",
+        "..tLFFFFFFFFFFR....T.....",
+        "...LFFFFFFFFFFR....T.....",
+        "...LFFFFFFFFFFR....T.....",
+        "...LFFFFFlwDwwK....T....t",
+        "t..LFFFFFR.P.......Tt....",
+        "...LFFFFFR.PPPPPPP.T.....",
+        "...LFFFFFR.P...t.P.TTTTTT",
+        "...LFFFFFR.P.....P...t...",
+        "...kwwDwwK.Pt....P.......",
+        ".t....P....P.....P.......",
+        "PPPPPPPPPPPP.....P.....t.",
+        "....t..P.t.......P.t.....",
+        "t......P......t..PPPPPPPP",
+        ".....lWDWWWWWr.........Pt",
+        "....tLFFFFFFFR.lWWWWWr.P.",
+        ".....LFFFFFFFkWKFFFFFR.P.",
+        ".t...LFFFFFFFDFDFFFFFRtP.",
+        ".....LFFFFFFFlWrFFFFFR.P.",
+        "....tkwwwwwwwK.WFFFFFDPP.",
+        ".............t.LFFFFFR...",
+        ".t.............kwwwwwK...",
+        "......t................t.",
         ]
     ]
     underlayTiles = new Tiles (underlay,
@@ -220,8 +236,7 @@ function setup() {
 
     playerBody = new Sprite(200,200,85)
     playerBody.image = playerSheet
-    playerBody.scale = 1
-    playerBody.layer = 2
+    playerBody.layer = 3
     playerBody.scale = 0.8
     playerBody.drag = 10
 
@@ -230,8 +245,20 @@ function setup() {
     playerHands.scale = 0.8
     new HingeJoint(playerBody, playerHands)
 
-    createBorder()
+    bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
+    bow.image = bowImg
+    bow.color = '#000'
+    bow.collider = 'n'
+    bow.layer = 2
 
+    purp = new Sprite(floor(Math.random()*3000), floor(Math.random()*3000), 150)
+    purp.image = purpImg
+    purp.layer = 3
+    purp.scale = 0.8
+    purp.drag = 10
+    purp.collider = 'd'
+
+    createBorder()
     tileSetup()
     levelSetup()
     
@@ -240,10 +267,83 @@ function setup() {
 function draw() {
     clear()
 
-    
-
     move()
     cameraMovement()
+    spawnBow()
+    pickup()
+    use()
+}
+
+function spawnBow() {
+    if(bow.collides(blockable)) {
+        bow.x = floor(Math.random()*3000)
+        bow.y = floor(Math.random()*3000)
+    }
+    if(!bRotate) {
+        rotVal = floor(Math.random()*360)
+        console.log("k")
+        bRotate = true
+    }
+    bow.rotateMinTo(rotVal,100)
+}
+
+function use() {
+    if(bowActive) {
+        if(mouse.presses() && !arrowExists) {
+            arrow = new Sprite(playerHands.x, playerHands.y, 30, 10, 'n')
+            arrow.image = arrowImg
+            arrow.layer = 2
+            arrowExists = true
+            arrow.rotateMinTo(mouse, 1000)
+            console.log('created')
+        }
+
+        else if(arrowExists) {
+            console.log('moved')
+            if(!arrowAngled) {
+                opp = playerBody.y - mouse.y
+                if(playerBody.x > mouse.x) {
+                    adj = mouse.x - playerBody.x
+                    angle = -Math.atan(opp/adj) * (180/PI) + 180;
+                }
+                else if(mouse.x > playerBody.x){
+                    adj = playerBody.x - mouse.x 
+                    angle = Math.atan(opp/adj) * (180/PI)
+                }
+                arrowAngled = true
+                arrow.move(1000000, angle, 15)
+            }
+
+            if(arrow.overlaps(blockable) || arrow.x < 0 || arrow.x > 3200 ||arrow.y < 0 || arrow.y > 3200) {
+                tempx = arrow.x
+                tempy = arrow.y
+
+                arrowsUsed = new Sprite(tempx, tempy, 30, 10, 'n')
+                arrowsUsed.rotateMinTo(angle, 100)
+                arrowsUsed.image = arrowImg
+                arrowsUsed.layer = 2
+
+                arrow.remove()
+                arrowExists = false
+                arrowAngled = false
+            }
+
+            if(arrow.overlaps(purp)) {
+                splat = new Sprite(purp.x, purp.y, 128, 128)
+                splat.image = splatImg
+                splat.layer = 2
+                splat.collider = 'n'
+                purp.remove()
+            }
+        }
+    }
+}
+
+function pickup() {
+    if(playerBody.overlaps(bow)) {
+        bow.remove()
+        bowActive = true
+    }
 }
 
 function move() {
