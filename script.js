@@ -10,6 +10,10 @@ let tempx, tempy
 let arrowsUsed
 let bRotate = false
 let rotVal
+let spawnLocations = [
+    [[2401, -25], [3030, 1909], [-10, 1663]] 
+    ]
+let spawnVal = Math.floor(Math.random()*3)
 
 function preload() {
     cursorImg = loadImage('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
@@ -19,6 +23,7 @@ function preload() {
     arrowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_arrow.png')
     bowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_bow_arrow.png')
     purpImg = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/purple_character.png')
+    //purpImg = loadImage('maks.png')
     splatImg = loadImage('kenney_splat-pack/PNG/Default/splat19.png')
 
     grassImg = loadImage('kenney_scribble-dungeons/PNG/Double/grass.png')
@@ -206,7 +211,7 @@ function levelSetup() {
         ".....LFFFFFFFkWKFFFFFR.P.",
         ".t...LFFFFFFFDFDFFFFFRtP.",
         ".....LFFFFFFFlWrFFFFFR.P.",
-        "....tkwwwwwwwK.WFFFFFDPP.",
+        "....tkwwwwwwwK.LFFFFFDPP.",
         ".............t.LFFFFFR...",
         ".t.............kwwwwwK...",
         "......t................t.",
@@ -243,6 +248,7 @@ function setup() {
     playerHands = new Sprite(200,200,65)
     playerHands.image = handsSheet
     playerHands.scale = 0.8
+    playerHands.layer = 2
     new HingeJoint(playerBody, playerHands)
 
     bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
@@ -251,7 +257,8 @@ function setup() {
     bow.collider = 'n'
     bow.layer = 2
 
-    purp = new Sprite(floor(Math.random()*3000), floor(Math.random()*3000), 150)
+    purple = new Group()
+    purp = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
     purp.image = purpImg
     purp.layer = 3
     purp.scale = 0.8
@@ -266,9 +273,11 @@ function setup() {
 
 function draw() {
     clear()
-
+    console.log(purp.x + " " + purp.y)
+    enemyMove()
     move()
     cameraMovement()
+
     spawnBow()
     pickup()
     use()
@@ -331,7 +340,7 @@ function use() {
             if(arrow.overlaps(purp)) {
                 splat = new Sprite(purp.x, purp.y, 128, 128)
                 splat.image = splatImg
-                splat.layer = 2
+                splat.layer = 1
                 splat.collider = 'n'
                 purp.remove()
             }
@@ -343,6 +352,20 @@ function pickup() {
     if(playerBody.overlaps(bow)) {
         bow.remove()
         bowActive = true
+    }
+}
+
+function enemyMove() {
+    for(p of purple) {
+        p.rotateMinTo(playerBody, 10)
+
+        if(!(p.collides(blockable))) {
+            p.moveTowards(playerBody, 0.02)
+        }
+        else if(p.collides(blockable)){
+
+        }
+        
     }
 }
 
