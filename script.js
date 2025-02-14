@@ -14,6 +14,8 @@ let spawnLocations = [
     [[2401, -25], [3030, 1909], [-10, 1663]] 
     ]
 let spawnVal = Math.floor(Math.random()*3)
+let ammo = 0
+let weaponCount = 5
 
 function preload() {
     cursorImg = loadImage('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
@@ -256,6 +258,7 @@ function setup() {
     bow.color = '#000'
     bow.collider = 'n'
     bow.layer = 2
+    bow.scale = 0.8
 
     purple = new Group()
     purp = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
@@ -273,7 +276,7 @@ function setup() {
 
 function draw() {
     clear()
-    console.log(purp.x + " " + purp.y)
+
     enemyMove()
     move()
     cameraMovement()
@@ -290,7 +293,6 @@ function spawnBow() {
     }
     if(!bRotate) {
         rotVal = floor(Math.random()*360)
-        console.log("k")
         bRotate = true
     }
     bow.rotateMinTo(rotVal,100)
@@ -298,7 +300,7 @@ function spawnBow() {
 
 function use() {
     if(bowActive) {
-        if(mouse.presses() && !arrowExists) {
+        if(mouse.presses() && !arrowExists && ammo != 0) {
             arrow = new Sprite(playerHands.x, playerHands.y, 30, 10, 'n')
             arrow.image = arrowImg
             arrow.layer = 2
@@ -306,7 +308,6 @@ function use() {
             arrow.rotateMinTo(mouse, 1000)
             console.log('created')
         }
-
         else if(arrowExists) {
             console.log('moved')
             if(!arrowAngled) {
@@ -323,7 +324,7 @@ function use() {
                 arrow.move(1000000, angle, 15)
             }
 
-            if(arrow.overlaps(blockable) || arrow.x < 0 || arrow.x > 3200 ||arrow.y < 0 || arrow.y > 3200) {
+            if(arrow.overlaps(blockable) || arrow.x < 0 || arrow.x > 3060 ||arrow.y < 0 || arrow.y > 3060) {
                 tempx = arrow.x
                 tempy = arrow.y
 
@@ -335,6 +336,7 @@ function use() {
                 arrow.remove()
                 arrowExists = false
                 arrowAngled = false
+                ammo -= 1
             }
 
             if(arrow.overlaps(purp)) {
@@ -346,12 +348,16 @@ function use() {
             }
         }
     }
+    if(ammo < 0) {
+        bowActive = false
+    }
 }
 
 function pickup() {
     if(playerBody.overlaps(bow)) {
         bow.remove()
         bowActive = true
+        ammo += 5
     }
 }
 
