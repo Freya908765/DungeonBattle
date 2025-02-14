@@ -3,12 +3,14 @@ let tilemapCount = 0
 let playerSpeed = 6.5
 let ease = 0.9
 let bowActive = false
+let spearActive = false
 let arrowAngled = false
 let arrowExists = false
 let angle, adj, opp, hyp
 let tempx, tempy
 let arrowsUsed
 let bRotate = false
+let sRotate = false
 let rotVal
 let spawnLocations = [
     [[2401, -25], [3030, 1909], [-10, 1663]] 
@@ -24,6 +26,7 @@ function preload() {
 
     arrowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_arrow.png')
     bowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_bow_arrow.png')
+    spearImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_spear.png')
     purpImg = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/purple_character.png')
     //purpImg = loadImage('maks.png')
     splatImg = loadImage('kenney_splat-pack/PNG/Default/splat19.png')
@@ -255,18 +258,38 @@ function setup() {
 
     bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
     bow.image = bowImg
-    bow.color = '#000'
     bow.collider = 'n'
     bow.layer = 2
     bow.scale = 0.8
 
+    spear = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
+    spear.image = spearImg
+    spear.collider = 'n'
+    spear.layer = 2
+    spear.scale = 0.8
+
     purple = new Group()
+
     purp = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
     purp.image = purpImg
     purp.layer = 3
     purp.scale = 0.8
     purp.drag = 10
     purp.collider = 'd'
+
+    purp1 = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
+    purp1.image = purpImg
+    purp1.layer = 3
+    purp1.scale = 0.8
+    purp1.drag = 10
+    purp1.collider = 'd'
+
+    purp2 = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
+    purp2.image = purpImg
+    purp2.layer = 3
+    purp2.scale = 0.8
+    purp2.drag = 10
+    purp2.collider = 'd'
 
     createBorder()
     tileSetup()
@@ -282,12 +305,13 @@ function draw() {
     cameraMovement()
 
     spawnBow()
+    spawnSpear()
     pickup()
     use()
 }
 
 function spawnBow() {
-    if(bow.collides(blockable)) {
+    if(bow.overlaps(blockable)) {
         bow.x = floor(Math.random()*3000)
         bow.y = floor(Math.random()*3000)
     }
@@ -296,6 +320,33 @@ function spawnBow() {
         bRotate = true
     }
     bow.rotateMinTo(rotVal,100)
+}
+
+function spawnSpear() {
+    if(spear.overlaps(blockable)) {
+        spear.x = floor(Math.random()*3000)
+        spear.y = floor(Math.random()*3000)
+    }
+    if(!sRotate) {
+        rotVal = floor(Math.random()*360)
+        sRotate = true
+    }
+    spear.rotateMinTo(rotVal,100)
+}
+
+function pickup() {
+    if(playerBody.overlaps(bow)) {
+        bow.remove()
+        bowActive = true
+        spearActive = false
+        ammo += 5
+    }
+    if(playerBody.overlaps(spear)) {
+        spear.remove()
+        spearActive = true
+        bowActive = false
+        ammo = 0
+    }
 }
 
 function use() {
@@ -339,25 +390,24 @@ function use() {
                 ammo -= 1
             }
 
-            if(arrow.overlaps(purp)) {
-                splat = new Sprite(purp.x, purp.y, 128, 128)
-                splat.image = splatImg
-                splat.layer = 1
-                splat.collider = 'n'
-                purp.remove()
+            for(p of purple) {
+                if(arrow.overlaps(p)) {
+                    splat = new Sprite(p.x, p.y, 128, 128)
+                    splat.image = splatImg
+                    splat.layer = 1
+                    splat.collider = 'n'
+                    splat.rotateMinTo(floor(Math.random()*360), 1000)
+                    p.remove()
+                    arrow.remove()
+                    arrowExists = false
+                    arrowAngled = false
+                    ammo -= 1
+                }
             }
         }
     }
     if(ammo < 0) {
         bowActive = false
-    }
-}
-
-function pickup() {
-    if(playerBody.overlaps(bow)) {
-        bow.remove()
-        bowActive = true
-        ammo += 5
     }
 }
 
@@ -368,10 +418,6 @@ function enemyMove() {
         if(!(p.collides(blockable))) {
             p.moveTowards(playerBody, 0.02)
         }
-        else if(p.collides(blockable)){
-
-        }
-        
     }
 }
 
