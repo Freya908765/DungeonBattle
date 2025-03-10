@@ -5,7 +5,10 @@ let ease = 0.9
 let bowActive = false
 let spearActive = false
 let arrowAngled = false
+let spearAngled = false
 let arrowExists = false
+let spearExist = false
+let sUsed = false
 let angle, adj, opp, hyp
 let tempx, tempy
 let arrowsUsed
@@ -18,9 +21,10 @@ let spawnLocations = [
 let spawnVal = Math.floor(Math.random()*3)
 let ammo = 0
 let weaponCount = 5
-
+let spearA = false
+let spearCount = 3
+ 
 function preload() {
-    cursorImg = loadImage('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
     playerSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_character.png')
     handsSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_hands.png')
 
@@ -29,7 +33,7 @@ function preload() {
     spearImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_spear.png')
     purpImg = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/purple_character.png')
     //purpImg = loadImage('maks.png')
-    splatImg = loadImage('kenney_splat-pack/PNG/Default/splat19.png')
+    splatImg = loadImage('kenney_splat-pack/PNG/Double/splat19.png')
 
     grassImg = loadImage('kenney_scribble-dungeons/PNG/Double/grass.png')
     woodFloorImg = loadImage('kenney_scribble-dungeons/PNG/Double/wood.png')
@@ -47,6 +51,10 @@ function preload() {
     wallTRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_tr.png')
     wallBLImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_bl.png')
     wallBRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_br.png')
+
+    maks = loadImage('maks.png')
+    maksWall = loadImage('image.png')
+
 }
 
 function tileSetup() {
@@ -66,7 +74,7 @@ function tileSetup() {
     wallT.tile = 'W';
     wallT.w = tileSize;
     wallT.h = tileSize/4;
-    wallT.layer = 3
+    wallT.layer = 2
 
     wallB = new blockable.Group();
     wallB.collider = 's';
@@ -74,7 +82,7 @@ function tileSetup() {
     wallB.tile = 'w';
     wallB.w = tileSize;
     wallB.h = tileSize/4;
-    wallB.layer = 3
+    wallB.layer = 2
 
     wallR = new blockable.Group();
     wallR.collider = 's';
@@ -82,7 +90,7 @@ function tileSetup() {
     wallR.tile = 'R';
     wallR.w = tileSize/4;
     wallR.h = tileSize;
-    wallR.layer = 3
+    wallR.layer = 2
 
     wallL = new blockable.Group();
     wallL.collider = 's';
@@ -90,7 +98,7 @@ function tileSetup() {
     wallL.tile = 'L';
     wallL.w = tileSize/4;
     wallL.h = tileSize;
-    wallL.layer = 3
+    wallL.layer = 2
 
     wallTL = new blockable.Group();
     wallTL.collider = 's';
@@ -98,7 +106,7 @@ function tileSetup() {
     wallTL.tile = 'l';
     wallTL.w = tileSize/3;
     wallTL.h = tileSize/3;
-    wallTL.layer = 3
+    wallTL.layer = 2
 
     wallTR = new blockable.Group();
     wallTR.collider = 's';
@@ -106,7 +114,7 @@ function tileSetup() {
     wallTR.tile = 'r';
     wallTR.w = tileSize/3;
     wallTR.h = tileSize/3;
-    wallTR.layer = 3
+    wallTR.layer = 2
 
     wallBL = new blockable.Group();
     wallBL.collider = 's';
@@ -114,7 +122,7 @@ function tileSetup() {
     wallBL.tile = 'k';
     wallBL.w = tileSize/3;
     wallBL.h = tileSize/3;
-    wallBL.layer = 3
+    wallBL.layer = 2
 
     wallBR = new blockable.Group();
     wallBR.collider = 's';
@@ -122,7 +130,7 @@ function tileSetup() {
     wallBR.tile = 'K';
     wallBR.w = tileSize/3;
     wallBR.h = tileSize/3;
-    wallBR.layer = 3
+    wallBR.layer = 2
 
     sFloor = new Group();
     sFloor.collider = 'n';
@@ -162,7 +170,7 @@ function tileSetup() {
     tree.tile = 't';
     tree.w = tileSize/3;
     tree.h = tileSize/3;
-    tree.layer = 3
+    tree.layer = 4
 }
 
 function levelSetup() {
@@ -253,7 +261,7 @@ function setup() {
     playerHands = new Sprite(200,200,65)
     playerHands.image = handsSheet
     playerHands.scale = 0.8
-    playerHands.layer = 2
+    playerHands.layer = 3
     new HingeJoint(playerBody, playerHands)
 
     bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
@@ -270,21 +278,21 @@ function setup() {
 
     purple = new Group()
 
-    purp = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
+    purp = new purple.Sprite(spawnLocations[0][Math.floor(Math.random()*3)][0], spawnLocations[0][Math.floor(Math.random()*3)][1], 85)
     purp.image = purpImg
     purp.layer = 3
     purp.scale = 0.8
     purp.drag = 10
     purp.collider = 'd'
 
-    purp1 = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
+    purp1 = new purple.Sprite(spawnLocations[0][Math.floor(Math.random()*3)][0], spawnLocations[0][Math.floor(Math.random()*3)][1], 85)
     purp1.image = purpImg
     purp1.layer = 3
     purp1.scale = 0.8
     purp1.drag = 10
     purp1.collider = 'd'
 
-    purp2 = new purple.Sprite(spawnLocations[0][spawnVal][0], spawnLocations[0][spawnVal][1], 85)
+    purp2 = new purple.Sprite(spawnLocations[0][Math.floor(Math.random()*3)][0], spawnLocations[0][Math.floor(Math.random()*3)][1], 85)
     purp2.image = purpImg
     purp2.layer = 3
     purp2.scale = 0.8
@@ -346,6 +354,18 @@ function pickup() {
         spearActive = true
         bowActive = false
         ammo = 0
+        spearA = true
+        console.log("spear pickup")
+    }
+    if(sUsed) {
+        if(playerBody.overlaps(spearUsed)) {
+            spearUsed.remove()
+            spearActive = true
+            bowActive = false
+            ammo = 0
+            spearA = true
+            console.log("spear pickup")
+        }
     }
 }
 
@@ -396,6 +416,7 @@ function use() {
                     splat.image = splatImg
                     splat.layer = 1
                     splat.collider = 'n'
+                    splat.scale = 0.5
                     splat.rotateMinTo(floor(Math.random()*360), 1000)
                     p.remove()
                     arrow.remove()
@@ -408,6 +429,77 @@ function use() {
     }
     if(ammo < 0) {
         bowActive = false
+    }
+
+    if(spearActive) {
+        if(mouse.presses('right') && spearA) {
+            spearThrow = new Sprite(playerHands.x, playerHands.y, 30, 10, 'n')
+            spearThrow.image = spearImg
+            spearThrow.layer = 2
+            spearA = false
+            spearThrow.rotateMinTo(mouse, 1000)
+            spearExist = true
+            console.log('created')
+        }
+        else if(spearExist) {
+            console.log('moved')
+            if(!spearAngled) {
+                opp = playerBody.y - mouse.y
+                if(playerBody.x > mouse.x) {
+                    adj = mouse.x - playerBody.x
+                    angle = -Math.atan(opp/adj) * (180/PI) + 180;
+                }
+                else if(mouse.x > playerBody.x){
+                    adj = playerBody.x - mouse.x 
+                    angle = Math.atan(opp/adj) * (180/PI)
+                }
+                spearAngled = true
+                spearThrow.move(1000000, angle, 15)
+            }
+
+            if(spearThrow.overlaps(blockable) || spearThrow.x < 0 || spearThrow.x > 3060 ||spearThrow.y < 0 || spearThrow.y > 3060) {
+                tempx = spearThrow.x
+                tempy = spearThrow.y
+
+                spearUsed = new Sprite(tempx, tempy, 30, 10, 'n')
+                spearUsed.rotateMinTo(angle, 100)
+                spearUsed.image = spearImg
+                spearUsed.layer = 2
+                sUsed = true
+
+                spearThrow.remove()
+                spearExist = false
+                spearAngled = false
+                spearCount = 3
+            }
+
+            for(p of purple) {
+                if(spearThrow.overlaps(p)) {
+                    tempx = spearThrow.x
+                    tempy = spearThrow.y
+                    
+                    splat = new Sprite(p.x, p.y, 128, 128)
+                    splat.image = splatImg
+                    splat.layer = 1
+                    splat.collider = 'n'
+                    splat.scale = 0.5
+                    splat.rotateMinTo(floor(Math.random()*360), 1000)
+                    p.remove()
+                    spearCount -= 1
+                    if(spearCount == 0) {
+                        spearThrow.remove()
+                        spearExist = false
+                        spearAngled = false
+
+                        spearUsed = new Sprite(tempx, tempy, 30, 10, 'n')
+                        spearUsed.rotateMinTo(angle, 100)
+                        spearUsed.image = spearImg
+                        spearUsed.layer = 2
+                        sUsed = true
+                    }
+                }
+            }
+        }
     }
 }
 
