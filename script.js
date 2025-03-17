@@ -4,16 +4,20 @@ let playerSpeed = 6.5
 let ease = 0.9
 let bowActive = false
 let spearActive = false
+let swordActive = false
 let arrowAngled = false
 let spearAngled = false
 let arrowExists = false
 let spearExist = false
+let swordExists = false
+let shieldActive = true
 let sUsed = false
 let angle, adj, opp, hyp
 let tempx, tempy
 let arrowsUsed
 let bRotate = false
 let sRotate = false
+let swRotate = false
 let rotVal
 let spawnLocations = [
     [[2401, -25], [3030, 1909], [-10, 1663]] 
@@ -22,8 +26,12 @@ let spawnVal = Math.floor(Math.random()*3)
 let ammo = 0
 let weaponCount = 5
 let spearA = false
+let spearB = false
 let spearCount = 3
- 
+let spearDelay = 10
+let durab = 0
+let pFreeze = 60
+
 function preload() {
     playerSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_character.png')
     handsSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_hands.png')
@@ -31,6 +39,8 @@ function preload() {
     arrowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_arrow.png')
     bowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_bow_arrow.png')
     spearImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_spear.png')
+    shieldImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/shield_curved2.png')
+    swordImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_longsword.png')
     purpImg = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/purple_character.png')
     //purpImg = loadImage('maks.png')
     splatImg = loadImage('kenney_splat-pack/PNG/Double/splat19.png')
@@ -51,10 +61,6 @@ function preload() {
     wallTRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_tr.png')
     wallBLImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_bl.png')
     wallBRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_br.png')
-
-    maks = loadImage('maks.png')
-    maksWall = loadImage('image.png')
-
 }
 
 function tileSetup() {
@@ -74,7 +80,7 @@ function tileSetup() {
     wallT.tile = 'W';
     wallT.w = tileSize;
     wallT.h = tileSize/4;
-    wallT.layer = 2
+    wallT.layer = 3
 
     wallB = new blockable.Group();
     wallB.collider = 's';
@@ -82,7 +88,7 @@ function tileSetup() {
     wallB.tile = 'w';
     wallB.w = tileSize;
     wallB.h = tileSize/4;
-    wallB.layer = 2
+    wallB.layer = 3
 
     wallR = new blockable.Group();
     wallR.collider = 's';
@@ -90,7 +96,7 @@ function tileSetup() {
     wallR.tile = 'R';
     wallR.w = tileSize/4;
     wallR.h = tileSize;
-    wallR.layer = 2
+    wallR.layer = 3
 
     wallL = new blockable.Group();
     wallL.collider = 's';
@@ -98,7 +104,7 @@ function tileSetup() {
     wallL.tile = 'L';
     wallL.w = tileSize/4;
     wallL.h = tileSize;
-    wallL.layer = 2
+    wallL.layer = 3
 
     wallTL = new blockable.Group();
     wallTL.collider = 's';
@@ -106,7 +112,7 @@ function tileSetup() {
     wallTL.tile = 'l';
     wallTL.w = tileSize/3;
     wallTL.h = tileSize/3;
-    wallTL.layer = 2
+    wallTL.layer = 3
 
     wallTR = new blockable.Group();
     wallTR.collider = 's';
@@ -114,7 +120,7 @@ function tileSetup() {
     wallTR.tile = 'r';
     wallTR.w = tileSize/3;
     wallTR.h = tileSize/3;
-    wallTR.layer = 2
+    wallTR.layer = 3
 
     wallBL = new blockable.Group();
     wallBL.collider = 's';
@@ -122,7 +128,7 @@ function tileSetup() {
     wallBL.tile = 'k';
     wallBL.w = tileSize/3;
     wallBL.h = tileSize/3;
-    wallBL.layer = 2
+    wallBL.layer = 3
 
     wallBR = new blockable.Group();
     wallBR.collider = 's';
@@ -130,7 +136,7 @@ function tileSetup() {
     wallBR.tile = 'K';
     wallBR.w = tileSize/3;
     wallBR.h = tileSize/3;
-    wallBR.layer = 2
+    wallBR.layer = 3
 
     sFloor = new Group();
     sFloor.collider = 'n';
@@ -252,49 +258,61 @@ function setup() {
     
     cursor('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
 
+    cursor = new Sprite(5,5,5,'n')
+    cursor.layer = 10
+    cursor.x = mouse.x
+    cursor.y = mouse.y
+
     playerBody = new Sprite(200,200,85)
     playerBody.image = playerSheet
-    playerBody.layer = 3
+    playerBody.layer = 4
     playerBody.scale = 0.8
     playerBody.drag = 10
 
     playerHands = new Sprite(200,200,65)
     playerHands.image = handsSheet
     playerHands.scale = 0.8
-    playerHands.layer = 3
+    playerHands.layer = 4
     new HingeJoint(playerBody, playerHands)
 
     bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
     bow.image = bowImg
     bow.collider = 'n'
-    bow.layer = 2
+    bow.layer = 4
     bow.scale = 0.8
 
     spear = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
     spear.image = spearImg
     spear.collider = 'n'
-    spear.layer = 2
+    spear.layer = 4
     spear.scale = 0.8
+
+    //sword = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
+    sword = new Sprite(50,50,20,20)
+    //sword.image = spearImg
+    sword.collider = 'n'
+    sword.layer = 4
+    sword.scale = 0.8
 
     purple = new Group()
 
     purp = new purple.Sprite(spawnLocations[0][Math.floor(Math.random()*3)][0], spawnLocations[0][Math.floor(Math.random()*3)][1], 85)
     purp.image = purpImg
-    purp.layer = 3
+    purp.layer = 4
     purp.scale = 0.8
     purp.drag = 10
     purp.collider = 'd'
 
     purp1 = new purple.Sprite(spawnLocations[0][Math.floor(Math.random()*3)][0], spawnLocations[0][Math.floor(Math.random()*3)][1], 85)
     purp1.image = purpImg
-    purp1.layer = 3
+    purp1.layer = 4
     purp1.scale = 0.8
     purp1.drag = 10
     purp1.collider = 'd'
 
     purp2 = new purple.Sprite(spawnLocations[0][Math.floor(Math.random()*3)][0], spawnLocations[0][Math.floor(Math.random()*3)][1], 85)
     purp2.image = purpImg
-    purp2.layer = 3
+    purp2.layer = 4
     purp2.scale = 0.8
     purp2.drag = 10
     purp2.collider = 'd'
@@ -307,6 +325,7 @@ function setup() {
 
 function draw() {
     clear()
+    mouseSprite()
 
     enemyMove()
     move()
@@ -314,6 +333,7 @@ function draw() {
 
     spawnBow()
     spawnSpear()
+    spawnSword()
     pickup()
     use()
 }
@@ -342,17 +362,46 @@ function spawnSpear() {
     spear.rotateMinTo(rotVal,100)
 }
 
+function spawnSword() {
+    if(sword.overlaps(blockable)) {
+        sword.x = floor(Math.random()*3000)
+        sword.y = floor(Math.random()*3000)
+    }
+    if(!swRotate) {
+        rotVal = floor(Math.random()*360)
+        swRotate = true
+    }
+    sword.rotateMinTo(rotVal,100)
+}
+
+function mouseSprite() {
+    cursor.x = mouse.x
+    cursor.y = mouse.y
+}
+
 function pickup() {
     if(playerBody.overlaps(bow)) {
         bow.remove()
         bowActive = true
         spearActive = false
+        if(swordActive) {
+            shield.remove()
+            swordSwing.remove()
+            swordJoint.remove()
+            swordActive = false
+        }
         ammo += 5
     }
     if(playerBody.overlaps(spear)) {
         spear.remove()
         spearActive = true
         bowActive = false
+        if(swordActive) {
+            shield.remove()
+            swordSwing.remove()
+            swordJoint.remove()
+            swordActive = false
+        }
         ammo = 0
         spearA = true
         console.log("spear pickup")
@@ -366,6 +415,15 @@ function pickup() {
             spearA = true
             console.log("spear pickup")
         }
+    }
+    if(playerBody.overlaps(sword)) {
+        sword.remove()
+        swordActive = true
+        bowActive = false
+        spearActive = false
+        ammo = 0
+        durab = 7
+        console.log("sword pickup")
     }
 }
 
@@ -500,6 +558,98 @@ function use() {
                 }
             }
         }
+        if(mouse.presses('left') && !spearB) {
+            spearB = true
+            spearMelee = new Sprite(playerHands.x, playerHands.y, 30, 10, 'n')
+            spearMelee.image = spearImg
+            spearMelee.layer = 2
+            
+            
+            opp = playerBody.y - mouse.y
+            if(playerBody.x > mouse.x) {
+                adj = mouse.x - playerBody.x
+                angle = -Math.atan(opp/adj) * (180/PI) + 180;
+            }
+            else if(mouse.x > playerBody.x){
+                adj = playerBody.x - mouse.x 
+                angle = Math.atan(opp/adj) * (180/PI)
+            }
+            spearMelee.rotateMinTo(angle, 1000)
+        }
+
+        if(spearB) {
+            for(p of purple) {
+                if(spearMelee.overlaps(p)) {
+                    splat = new Sprite(p.x, p.y, 128, 128)
+                    splat.image = splatImg
+                    splat.layer = 1
+                    splat.collider = 'n'
+                    splat.scale = 0.5
+                    splat.rotateMinTo(floor(Math.random()*360), 1000)
+                    p.remove()
+                }
+            }
+            if(spearDelay > 0) {
+                spearMelee.move(10, angle, 30)
+            }
+            if(spearDelay == 0) {
+                spearMelee.remove()
+                spearDelay = 10
+                spearB = false
+            }
+            spearDelay -= 1
+        }
+    }
+
+    if(swordActive) {
+        if(shieldActive) {
+            shield = new Sprite(playerHands.x + 30, playerHands.y + 30, 70, 'n')
+            shield.image = shieldImg
+            opp = playerHands.y - mouse.y
+            if(playerBody.x > mouse.x) {
+                adj = mouse.x - playerBody.x
+                angle = -Math.atan(opp/adj) * (180/PI) + 180;
+            }
+            else if(mouse.x > playerBody.x){
+                adj = playerBody.x - mouse.x 
+                angle = Math.atan(opp/adj) * (180/PI)
+            }
+            
+            swordJoint = new GlueJoint(playerBody, shield)
+            shieldActive = false
+        }
+        
+        if(!swordExists && durab != 0) {
+            swordSwing = new Sprite(playerBody.x + 70, playerBody.y - 30, 30, 10, 'n')
+            swordSwing.image = swordImg
+            swordSwing.layer = 2
+            swordExists = true
+            new GlueJoint(playerBody, swordSwing)
+            console.log('created')
+        }
+        else if(swordExists) {
+            console.log('moved')
+            if(!cursor.overlapping(playerBody)) {
+                swordSwing.rotateTowards(mouse, 0.15)
+                shield.rotateTowards(mouse, 0.15)
+            }
+            
+            for(p of purple) {
+                if(swordSwing.overlaps(p)) {
+                    splat = new Sprite(p.x, p.y, 128, 128)
+                    splat.image = splatImg
+                    splat.layer = 1
+                    splat.collider = 'n'
+                    splat.scale = 0.5
+                    splat.rotateMinTo(floor(Math.random()*360), 1000)
+                    p.remove()
+                    durab -= 1
+                }
+            }
+        }
+    }
+    if(durab < 0) {
+        swordActive = false
     }
 }
 
@@ -631,4 +781,5 @@ function createBorder() {
     border.collider = 'n'
     border.color = '#000'
     border.stroke = '#000'
+    border.layer = 6
 }
