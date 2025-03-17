@@ -422,7 +422,7 @@ function pickup() {
         bowActive = false
         spearActive = false
         ammo = 0
-        durab = 7
+        durab = 3
         console.log("sword pickup")
     }
 }
@@ -620,7 +620,7 @@ function use() {
         }
         
         if(!swordExists && durab != 0) {
-            swordSwing = new Sprite(playerBody.x + 70, playerBody.y - 30, 30, 10, 'n')
+            swordSwing = new Sprite(playerBody.x + 70, playerBody.y - 30, 80, 20, 'n')
             swordSwing.image = swordImg
             swordSwing.layer = 2
             swordExists = true
@@ -648,8 +648,11 @@ function use() {
             }
         }
     }
-    if(durab < 0) {
+    if(durab <= 0 && swordExists) {
         swordActive = false
+        shield.remove()
+        swordSwing.remove()
+        swordJoint.remove()
     }
 }
 
