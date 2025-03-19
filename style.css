@@ -1,0 +1,35 @@
+@font-face {
+    font-family: pixelText;
+    src: url(PIXEL.otf)
+}
+
+.text {
+    font-family: pixelText;
+}
+
+.button {
+    background-color: transparent;
+    border-radius: 28px;
+    height: 42px;
+    border: none;
+    color:#000000;
+    font-size:60px;
+    font-family: pixelText;
+    text-decoration:none;
+}
+.button:hover {
+    z-index: 9;
+    transform: scale(1.04);
+    transition: transform ease 0.15s;
+}
+
+.button1 {
+    background-color: transparent;
+    border-radius: 28px;
+    height: 42px;
+    border: none;
+    color:#000000;
+    font-size:60px;
+    font-family: pixelText;
+    text-decoration:none;
+}

@@ -10,7 +10,7 @@ let spearAngled = false
 let arrowExists = false
 let spearExist = false
 let swordExists = false
-let shieldActive = true
+let shieldActive = false
 let sUsed = false
 let angle, adj, opp, hyp
 let tempx, tempy
@@ -31,10 +31,21 @@ let spearCount = 3
 let spearDelay = 10
 let durab = 0
 let pFreeze = 60
+let pHealth = 100
+let healthAdjust = 0
+let spearSpawn = true
+let swordSpawn = true
+let bowSpawn = true
+let state = 0
+let tempStateM = 0
+let tempStateG = 0
+let tempStateI = 0
 
 function preload() {
+    font = loadFont('PIXEL.otf')
     playerSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_character.png')
     handsSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_hands.png')
+    backgroundImg = loadImage('GAME3.png')
 
     arrowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_arrow.png')
     bowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_bow_arrow.png')
@@ -252,11 +263,13 @@ function levelSetup() {
 }
 
 function setup() {
+    cursor('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
+}
+
+function gameSetup() {
     createCanvas(1400, 900)
     displayMode('centered')
     background(0)
-    
-    cursor('kenney_cursor-pack/PNG/Outline/Default/cursor_none.png')
 
     cursor = new Sprite(5,5,5,'n')
     cursor.layer = 10
@@ -275,24 +288,13 @@ function setup() {
     playerHands.layer = 4
     new HingeJoint(playerBody, playerHands)
 
-    bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
-    bow.image = bowImg
-    bow.collider = 'n'
-    bow.layer = 4
-    bow.scale = 0.8
+    healthBar = new Sprite(playerBody.x,playerBody.y, 500,30, 'n')
+    healthBar.color = 'red'
+    healthBar.layer = 10
 
-    spear = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
-    spear.image = spearImg
-    spear.collider = 'n'
-    spear.layer = 4
-    spear.scale = 0.8
-
-    //sword = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
-    sword = new Sprite(50,50,20,20)
-    //sword.image = spearImg
-    sword.collider = 'n'
-    sword.layer = 4
-    sword.scale = 0.8
+    healthContainer = new Sprite(playerBody.x,playerBody.y, 510,40, 'n')
+    healthContainer.color = 'black'
+    healthContainer.layer = '9'
 
     purple = new Group()
 
@@ -323,60 +325,210 @@ function setup() {
     
 }
 
-function draw() {
+function menuSetup() {
+    createCanvas(1400, 900)
+    displayMode('centered')
+    background(backgroundImg)
+    textSize(128);
+
+    selectButton = createButton('Level Select');
+    selectButton.class("button");
+    selectButton.position(760, 350);
+    selectButton.mousePressed(loadGame);
+
+    instructButton = createButton('Instructions');
+    instructButton.class("button");
+    instructButton.position(755, 440);
+    instructButton.mousePressed(loadInstruct);
+    
+    exitButton = createButton('Exit');
+    exitButton.class("button");
+    exitButton.position(875, 530);
+    exitButton.mousePressed(exit)
+}
+
+function instructSetup() {
+    createCanvas(1400, 900)
+    displayMode('centered')
+    background(backgroundImg)
+    textSize(40);
+
+    backButton = createButton('Back');
+    backButton.class("button");
+    backButton.position(875, 730);
+    backButton.mousePressed(back)
+}
+
+function draw() { 
+    if(state == 0) {
+        if(tempStateM == 0) {
+           menuSetup() 
+           tempStateM = 1
+        }
+        tempStateG = 0
+        tempStateI = 0
+        drawMenu()
+    }
+    else if(state == 1) {
+        if(tempStateG == 0) {
+            gameSetup()
+            tempStateG = 1
+        }
+        drawGame()
+    }
+    else if(state == 2) {
+        if(tempStateI == 0) {
+            instructSetup()
+            tempStateI = 1
+        }
+        drawInstruct()
+    }
+}
+
+function drawMenu() {
+    textFont(font)
+    stroke(255)
+    strokeWeight(0)
+    text("DUNGEON BATTLE", 230, 125)
+    console.log('menu' + state)
+}
+
+function drawGame() {
     clear()
+    background(255)
+    selectButton.remove()
+    instructButton.remove()
+    exitButton.remove()
+
     mouseSprite()
 
     enemyMove()
     move()
     cameraMovement()
 
+    playerHit()
+
     spawnBow()
     spawnSpear()
     spawnSword()
     pickup()
     use()
+
+    if(kb.presses('escape')) {
+        window.open("index.html", "_self")
+    }
+}
+
+function drawInstruct() {
+    selectButton.remove()
+    instructButton.remove()
+    exitButton.remove()
+    fill(255)
+    stroke(0)
+    strokeWeight(5)
+    rect(100,100,1200,700)
+    fill(0)
+    stroke(255)
+    text('Survive oncoming waves of enemies using weapons around the', 120, 150)
+    text('map.', 120, 180)
+    text('Weapons spawn randomly throughout levels and have limited', 120, 230)
+    text('uses.', 120, 270)
+    text('Use WASD to move and the mouse to aim. Left click fires', 120, 320)
+    text('arrows and uses the spear while right click throws the spear.', 120, 360)
+    text('Getting hit by enemies will reduce your health get hit too many', 120, 410)
+    text('times and you die.', 120, 450)
+
+    text('Deafeating enemies will score points, more enemies killed', 120, 500)
+    text('leads to a higher score', 120, 540)
+
+    text('There are two levels to choose from level one is smaller and', 120, 590)
+    text('level two is large.', 120, 630)
+}
+
+function playerHit() {
+    if(pHealth == 0) {
+        noLoop()
+    }
+    for(p of purple) {
+        if(p.collides(playerBody)) {
+            pHealth -= 5
+            healthBar.w -= 25
+            healthAdjust += 12.5
+            console.log(pHealth, healthBar.w, healthAdjust)          
+        }
+    }
 }
 
 function spawnBow() {
-    if(bow.overlaps(blockable)) {
-        bow.x = floor(Math.random()*3000)
-        bow.y = floor(Math.random()*3000)
+    if(bowSpawn){
+        bow = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
+        bow.image = bowImg
+        bow.collider = 'n'
+        bow.layer = 4
+        bow.scale = 0.8
+        if(bow.overlaps(blockable)) {
+            bow.x = floor(Math.random()*3000)
+            bow.y = floor(Math.random()*3000)
+        }
+        if(!bRotate) {
+            rotVal = floor(Math.random()*360)
+            bRotate = true
+        }
+        bow.rotateMinTo(rotVal,100) 
+        bowSpawn = false
+        console.log('bow spawn')
     }
-    if(!bRotate) {
-        rotVal = floor(Math.random()*360)
-        bRotate = true
-    }
-    bow.rotateMinTo(rotVal,100)
+    
 }
 
 function spawnSpear() {
-    if(spear.overlaps(blockable)) {
-        spear.x = floor(Math.random()*3000)
-        spear.y = floor(Math.random()*3000)
+    if(spearSpawn) {
+        spear = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000), 20, 20)
+        spear.image = spearImg
+        spear.collider = 'n'
+        spear.layer = 4
+        spear.scale = 0.8
+        if(spear.overlaps(blockable)) {
+            spear.x = floor(Math.random()*3000)
+            spear.y = floor(Math.random()*3000)
+        }
+        if(!sRotate) {
+            rotVal = floor(Math.random()*360)
+            sRotate = true
+        }
+        spear.rotateMinTo(rotVal,100)
+        spearSpawn = false
+        console.log('spear spawn')
     }
-    if(!sRotate) {
-        rotVal = floor(Math.random()*360)
-        sRotate = true
-    }
-    spear.rotateMinTo(rotVal,100)
+    
 }
 
 function spawnSword() {
-    if(sword.overlaps(blockable)) {
-        sword.x = floor(Math.random()*3000)
-        sword.y = floor(Math.random()*3000)
+    if(swordSpawn) {
+        sword = new Sprite(floor(Math.random()*3000),floor(Math.random()*3000),20,20)
+        sword.image = swordImg
+        sword.collider = 'n'
+        sword.layer = 4
+        sword.scale = 0.8
+        if(sword.overlaps(blockable)) {
+            sword.x = floor(Math.random()*3000)
+            sword.y = floor(Math.random()*3000)
+        }
+        if(!swRotate) {
+            rotVal = floor(Math.random()*360)
+            swRotate = true
+        }
+        sword.rotateMinTo(rotVal,100) 
+        swordSpawn = false
+        console.log('sword spawn')
     }
-    if(!swRotate) {
-        rotVal = floor(Math.random()*360)
-        swRotate = true
-    }
-    sword.rotateMinTo(rotVal,100)
+    
 }
 
 function mouseSprite() {
     cursor.x = mouse.x
-    cursor.y = mouse.y
+    cursor.y = mouse.y 
+    cursor.visible = false
 }
 
 function pickup() {
@@ -391,9 +543,11 @@ function pickup() {
             swordActive = false
         }
         ammo += 5
+        bowSpawn = true
     }
     if(playerBody.overlaps(spear)) {
         spear.remove()
+        sThrown = false
         spearActive = true
         bowActive = false
         if(swordActive) {
@@ -405,9 +559,12 @@ function pickup() {
         ammo = 0
         spearA = true
         console.log("spear pickup")
+        spearSpawn = true
     }
     if(sUsed) {
         if(playerBody.overlaps(spearUsed)) {
+            sThrown = false
+            sUsed = false
             spearUsed.remove()
             spearActive = true
             bowActive = false
@@ -424,6 +581,9 @@ function pickup() {
         ammo = 0
         durab = 3
         console.log("sword pickup")
+        swordSpawn = true
+        shieldActive = true
+        swordExists = false
     }
 }
 
@@ -487,6 +647,7 @@ function use() {
     }
     if(ammo < 0) {
         bowActive = false
+        bowSpawn = true
     }
 
     if(spearActive) {
@@ -498,6 +659,7 @@ function use() {
             spearThrow.rotateMinTo(mouse, 1000)
             spearExist = true
             console.log('created')
+            sThrown = true
         }
         else if(spearExist) {
             console.log('moved')
@@ -558,7 +720,7 @@ function use() {
                 }
             }
         }
-        if(mouse.presses('left') && !spearB) {
+        if(mouse.presses('left') && !spearB && !sThrown) {
             spearB = true
             spearMelee = new Sprite(playerHands.x, playerHands.y, 30, 10, 'n')
             spearMelee.image = spearImg
@@ -605,6 +767,7 @@ function use() {
         if(shieldActive) {
             shield = new Sprite(playerHands.x + 30, playerHands.y + 30, 70, 'n')
             shield.image = shieldImg
+            shield.layer = 4
             opp = playerHands.y - mouse.y
             if(playerBody.x > mouse.x) {
                 adj = mouse.x - playerBody.x
@@ -653,6 +816,8 @@ function use() {
         shield.remove()
         swordSwing.remove()
         swordJoint.remove()
+        swordSpawn = true
+        swordExists = false
     }
 }
 
@@ -740,32 +905,44 @@ function move() {
 function cameraMovement() {
     if(playerBody.x < 700) {
         camera.x = 700
+        healthBar.x = 700 - healthAdjust
+        healthContainer.x = 700
         leftBorder.x = camera.x - width/2 + 5
         rightBorder.x = camera.x + width/2 - 5
     }
     else if(playerBody.x > 2380) {
         camera.x = 2380
+        healthBar.x = 2380 - healthAdjust
+        healthContainer.x = 2380
         leftBorder.x = camera.x - width/2 + 5
         rightBorder.x = camera.x + width/2 - 5
     }
     else {
         camera.x = playerBody.x
+        healthBar.x = playerBody.x - healthAdjust
+        healthContainer.x = playerBody.x
         leftBorder.x = playerBody.x - width/2 + 5
         rightBorder.x = playerBody.x + width/2 - 5
     }
 
     if(playerBody.y < 450) {
         camera.y = 450
+        healthBar.y = 450 + 400
+        healthContainer.y = 450 + 400
         topBorder.y = camera.y - height/2 + 5
         bottomBorder.y = camera.y + height/2 - 5
     }
     else if(playerBody.y > 2630) {
         camera.y = 2630
+        healthBar.y = 2630 + 400
+        healthContainer.y = 2630 + 400
         topBorder.y = camera.y - height/2 + 5
         bottomBorder.y = camera.y + height/2 - 5
     }
     else {
         camera.y = playerBody.y
+        healthBar.y = playerBody.y + 400
+        healthContainer.y = playerBody.y + 400
         topBorder.y = playerBody.y - height/2 + 5
         bottomBorder.y = playerBody.y + height/2 - 5
     } 
@@ -785,4 +962,21 @@ function createBorder() {
     border.color = '#000'
     border.stroke = '#000'
     border.layer = 6
+}
+
+function loadGame() {
+    state = 1
+    console.log('pressed' + state)
+}
+
+function exit() {
+    noLoop()
+}
+
+function loadInstruct() {
+    state = 2
+}
+
+function back() {
+    window.open("index.html", "_self")
 }
