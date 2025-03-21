@@ -40,12 +40,21 @@ let state = 0
 let tempStateM = 0
 let tempStateG = 0
 let tempStateI = 0
+let tempStateS = 0
+let tempStateD = 0
+let score = 0
+let msg = ' '
+let msgSet = false
+let levelChoice = 0
+let scoreMsg = ''
 
 function preload() {
     font = loadFont('PIXEL.otf')
     playerSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_character.png')
     handsSheet = loadImage('kenney_scribble-dungeons/PNG/Double/Characters/green_hands.png')
     backgroundImg = loadImage('GAME3.png')
+    selectImg = loadImage('SELECT.png')
+    deadImg = loadImage('DEAD.png')
 
     arrowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_arrow.png')
     bowImg = loadImage('kenney_scribble-dungeons/PNG/Double/Items/weapon_bow_arrow.png')
@@ -72,6 +81,9 @@ function preload() {
     wallTRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_tr.png')
     wallBLImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_bl.png')
     wallBRImg = loadImage('kenney_scribble-dungeons/PNG/Double/wall_corner_br.png')
+
+    level1Img = loadImage('level1.png')
+    level2Img = loadImage('level2.png')
 }
 
 function tileSetup() {
@@ -192,59 +204,116 @@ function tileSetup() {
 
 function levelSetup() {
     underlay = [
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
-        "ggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
+            "gggggggggggggggggggggggggggggggggggggggg",
         ]
     tilemaps = [
         [
-        ".................t.T.....",
-        "...lWWWWWr..t......T.t...",
-        "...LFFFFFkWWWWr....T.....",
-        "..tLFFFFFFFFFFR....T.....",
-        "...LFFFFFFFFFFR....T.....",
-        "...LFFFFFFFFFFR....T.....",
-        "...LFFFFFlwDwwK....T....t",
-        "t..LFFFFFR.P.......Tt....",
-        "...LFFFFFR.PPPPPPP.T.....",
-        "...LFFFFFR.P...t.P.TTTTTT",
-        "...LFFFFFR.P.....P...t...",
-        "...kwwDwwK.Pt....P.......",
-        ".t....P....P.....P.......",
-        "PPPPPPPPPPPP.....P.....t.",
-        "....t..P.t.......P.t.....",
-        "t......P......t..PPPPPPPP",
-        ".....lWDWWWWWr.........Pt",
-        "....tLFFFFFFFR.lWWWWWr.P.",
-        ".....LFFFFFFFkWKFFFFFR.P.",
-        ".t...LFFFFFFFDFDFFFFFRtP.",
-        ".....LFFFFFFFlWrFFFFFR.P.",
-        "....tkwwwwwwwK.LFFFFFDPP.",
-        ".............t.LFFFFFR...",
-        ".t.............kwwwwwK...",
-        "......t................t.",
+            ".................t.T.....",
+            "...lWWWWWr..t......T.t...",
+            "...LFFFFFkWWWWr....T.....",
+            "..tLFFFFFFFFFFR....T.....",
+            "...LFFFFFFFFFFR....T.....",
+            "...LFFFFFFFFFFR....T.....",
+            "...LFFFFFlwDwwK....T....t",
+            "t..LFFFFFR.P.......Tt....",
+            "...LFFFFFR.PPPPPPP.T.....",
+            "...LFFFFFR.P...t.P.TTTTTT",
+            "...LFFFFFR.P.....P...t...",
+            "...kwwDwwK.Pt....P.......",
+            ".t....P....P.....P.......",
+            "PPPPPPPPPPPP.....P.....t.",
+            "....t..P.t.......P.t.....",
+            "t......P......t..PPPPPPPP",
+            ".....lWDWWWWWr.........Pt",
+            "....tLFFFFFFFR.lWWWWWr.P.",
+            ".....LFFFFFFFkWKFFFFFR.P.",
+            ".t...LFFFFFFFDFDFFFFFRtP.",
+            ".....LFFFFFFFlWrFFFFFR.P.",
+            "....tkwwwwwwwK.LFFFFFDPP.",
+            ".............t.LFFFFFR...",
+            ".t.............kwwwwwK...",
+            "......t................t.",
+        ],
+        [
+            "........t............................t..",
+            "....t...............t..........t........",
+            "...lWWWWWWWWWr........lWWWWWWWWWWr......",
+            "t..LFFFFFFFFFR........LFFFFFFFFFFR......",
+            "...LFFFFFFFFFR........LFFFFFFFFFFR......",
+            "...LFFFFFFFFFR.t......LFFFFFFFFFFR......",
+            "...LFFFFFFFFFR........LFFFFFFFFFFR.t....",
+            "...LFFFFFlLDLK....t...LFFFFFlwwwwK......",
+            "..tLFFFFFR.P..........LFFFFFR...........",
+            "...LFFFFFR.P..........kwwDwwK..........t",
+            "...LFFFFFR.P.............P.....t........",
+            "...LFFFFFR.P.............P.......PPPPPPP",
+            "...kwwwwwK.PPPPPPPPPPPPPPPPPPPPPPP......",
+            "...........P...............t.P..........",
+            "...........P..........t......P........t.",
+            "PPPPPPPPPPPP...t.............P..lWWWWr..",
+            "........P....................P..LFFFFR..",
+            "...t....P.lWWWWWr....t.....t.P..LFFFFR..",
+            "........P.LFFFFFR............P..LFFFFR..",
+            "........P.LFFFFFRt...........P..LFFFFR..",
+            "......t.P.LFFFFFR............PPPDFFFFR..",
+            "t.......P.LFFFFFR............P..LFFFFR..",
+            "........P.LFFFFFR.t.....t....P..kwwwwK..",
+            "........P.kwwDwwK............P......t...",
+            "........P..............PPPPPPPPPPPPPPPPP",
+            "........PPPPPPPPPPPPPPPP...........P....",
+            "...............P..t.........lWWWr..P....",
+            ".............t.P..........t.LFFFR..P....",
+            "..t....t.......P....t.......LFFFR..P....",
+            ".....TTTTTTTTTTTTTTTTTTTTTT.LFFFR..P..t.",
+            ".....T.........P..........T.LFFFR..P....",
+            "....tT...t.....P.......t..T.LFFFkWWDWr..",
+            ".....T.....lWWWDWWWWWWWr..T.LFFFFFFFFR..",
+            "TTTTTT.....LFFFFFFFFFFFR..T.LFFFFFFFFR..",
+            "...........LFFFFFFFFFFFR..T.LFFFFFFFFR..",
+            ".lWWWDWr...LFFFFFFFFFFFR..T.LFFFFFFFFR..",
+            ".LFFFFFR.t.LFFFFFFFFFFFRt.T.kwwwwwwwwK..",
+            ".LFFFFFR...LFFFFFFFFFFFR..T.............",
+            ".kwwwwwK...kwwwwwwwwwwwK..T.............",
+            "................t.........T......t......",  
         ]
     ]
     underlayTiles = new Tiles (underlay,
@@ -270,11 +339,13 @@ function gameSetup() {
     createCanvas(1400, 900)
     displayMode('centered')
     background(0)
+    textSize(30)
+    textFont('Arial')
 
-    cursor = new Sprite(5,5,5,'n')
-    cursor.layer = 10
-    cursor.x = mouse.x
-    cursor.y = mouse.y
+    cursorS = new Sprite(5,5,5,'n')
+    cursorS.layer = 10
+    cursorS.x = mouse.x
+    cursorS.y = mouse.y
 
     playerBody = new Sprite(200,200,85)
     playerBody.image = playerSheet
@@ -319,6 +390,14 @@ function gameSetup() {
     purp2.drag = 10
     purp2.collider = 'd'
 
+    scoreSprite = new Sprite(0,0,100,20, 'n')
+    scoreSprite.color = 'transparent'
+    scoreSprite.text = "Score: " + score.toString()
+
+    ammoSprite = new Sprite(400,400,100,20, 'n')
+    ammoSprite.color = 'transparent'
+    ammoSprite.text = msg
+
     createBorder()
     tileSetup()
     levelSetup()
@@ -334,7 +413,7 @@ function menuSetup() {
     selectButton = createButton('Level Select');
     selectButton.class("button");
     selectButton.position(760, 350);
-    selectButton.mousePressed(loadGame);
+    selectButton.mousePressed(loadSelect);
 
     instructButton = createButton('Instructions');
     instructButton.class("button");
@@ -347,6 +426,24 @@ function menuSetup() {
     exitButton.mousePressed(exit)
 }
 
+function selectSetup() {
+    cursorS = new Sprite(5,5,5,'n')
+    cursorS.layer = 10
+    cursorS.x = mouse.x
+    cursorS.y = mouse.y
+
+    createCanvas(1400, 900)
+    displayMode('centered')
+    background(backgroundImg)
+    textSize(128);
+
+    level = new Group()
+    level1 = new level.Sprite(400,500,400,400, 'n')
+    level1.image = level1Img
+    level2 = new level.Sprite(1000,500,400,400, 'n')
+    level2.image = level2Img
+}
+
 function instructSetup() {
     createCanvas(1400, 900)
     displayMode('centered')
@@ -357,6 +454,24 @@ function instructSetup() {
     backButton.class("button");
     backButton.position(875, 730);
     backButton.mousePressed(back)
+}
+
+function deathSetup() {
+    createCanvas(1400, 900)
+    displayMode('centered')
+    background(deadImg)
+    textSize(128);
+    textFont(font)
+
+    retryButton = createButton('Try Again');
+    retryButton.class("button");
+    retryButton.position(780, 350);
+    retryButton.mousePressed(loadGame);
+
+    menuButton = createButton('Main Menu');
+    menuButton.class("button");
+    menuButton.position(765, 440);
+    menuButton.mousePressed(back);
 }
 
 function draw() { 
@@ -373,7 +488,10 @@ function draw() {
         if(tempStateG == 0) {
             gameSetup()
             tempStateG = 1
+            tempStateS = 0
+            tempStateD = 0
         }
+        console.log('game start')
         drawGame()
     }
     else if(state == 2) {
@@ -383,6 +501,26 @@ function draw() {
         }
         drawInstruct()
     }
+    else if(state == 3) {
+        if(tempStateS == 0) {
+            selectSetup()
+            tempStateI = 0
+            tempStateM = 0
+            tempStateS = 1
+        }
+        drawSelect()
+    }
+    else if(state == 4) {
+        if(tempStateD == 0) {
+           deathSetup()
+            tempStateI = 0
+            tempStateM = 0
+            tempStateS = 0
+            tempStateD = 1
+            tempStateG = 0
+        }
+        drawDeath()
+    }
 }
 
 function drawMenu() {
@@ -391,6 +529,14 @@ function drawMenu() {
     strokeWeight(0)
     text("DUNGEON BATTLE", 230, 125)
     console.log('menu' + state)
+}
+
+function drawDeath() {
+    fill(0)
+    text("YOU DIED", 430, 125)
+    underlayTiles.remove()
+    levelTiles.remove()
+    allSprites.remove()
 }
 
 function drawGame() {
@@ -403,8 +549,17 @@ function drawGame() {
     mouseSprite()
 
     enemyMove()
-    move()
-    cameraMovement()
+    
+    if(tilemapCount==0) {
+        cameraMovement1()
+        move1()
+    }
+    if(tilemapCount==1) {
+        cameraMovement2()
+        move2()
+    }
+    
+    console.log(playerBody.x, playerBody.y)
 
     playerHit()
 
@@ -416,6 +571,27 @@ function drawGame() {
 
     if(kb.presses('escape')) {
         window.open("index.html", "_self")
+    }
+
+    stroke(255)
+    strokeWeight(0)
+    fill(0)
+    text(msg, 400, 400)
+    scoreSprite.text = "Score: " + score.toString()
+    ammoSprite.text = msg
+
+    if(bowActive) {
+        msg = "Ammo: " + ammo
+    }
+    else if(swordActive) {
+        msg = "Durability: " + durab 
+    }
+    else {
+        msg = ' '
+    }
+
+    if(pHealth <= 0) {
+        die()
     }
 }
 
@@ -443,6 +619,47 @@ function drawInstruct() {
 
     text('There are two levels to choose from level one is smaller and', 120, 590)
     text('level two is large.', 120, 630)
+}
+
+function drawSelect() {
+    clear()
+    background(selectImg)
+
+    selectButton.remove()
+    instructButton.remove()
+    exitButton.remove()
+    mouseSprite()
+
+    textFont(font)
+    fill(0)
+    stroke(255)
+    strokeWeight(0)
+    text("LEVEL SELECT", 280, 125)
+    fill(255)
+
+    if(cursorS.overlapping(level1)) {
+        console.log('overlap')
+        if(mouse.presses()) {
+            tilemapCount = 0
+            loadGame()
+            console.log('press')
+            level1.remove()
+            level2.remove()
+            
+        }
+    }
+    if(cursorS.overlapping(level2)) {
+        console.log('overlap')
+        if(mouse.presses()) {
+            tilemapCount = 1
+            loadGame()
+            console.log('press')
+            level1.remove()
+            level2.remove()
+            
+        }
+    }
+
 }
 
 function playerHit() {
@@ -526,9 +743,9 @@ function spawnSword() {
 }
 
 function mouseSprite() {
-    cursor.x = mouse.x
-    cursor.y = mouse.y 
-    cursor.visible = false
+    cursorS.x = mouse.x
+    cursorS.y = mouse.y 
+    cursorS.visible = false
 }
 
 function pickup() {
@@ -613,7 +830,7 @@ function use() {
                 arrow.move(1000000, angle, 15)
             }
 
-            if(arrow.overlaps(blockable) || arrow.x < 0 || arrow.x > 3060 ||arrow.y < 0 || arrow.y > 3060) {
+            if(arrow.overlaps(blockable) || arrow.x < 0 || arrow.x > 4884 ||arrow.y < 0 || arrow.y > 4884) {
                 tempx = arrow.x
                 tempy = arrow.y
 
@@ -641,6 +858,7 @@ function use() {
                     arrowExists = false
                     arrowAngled = false
                     ammo -= 1
+                    score += 1
                 }
             }
         }
@@ -706,6 +924,7 @@ function use() {
                     splat.rotateMinTo(floor(Math.random()*360), 1000)
                     p.remove()
                     spearCount -= 1
+                    score += 1
                     if(spearCount == 0) {
                         spearThrow.remove()
                         spearExist = false
@@ -749,6 +968,7 @@ function use() {
                     splat.scale = 0.5
                     splat.rotateMinTo(floor(Math.random()*360), 1000)
                     p.remove()
+                    score += 1
                 }
             }
             if(spearDelay > 0) {
@@ -792,10 +1012,8 @@ function use() {
         }
         else if(swordExists) {
             console.log('moved')
-            if(!cursor.overlapping(playerBody)) {
-                swordSwing.rotateTowards(mouse, 0.15)
-                shield.rotateTowards(mouse, 0.15)
-            }
+            swordSwing.rotateTowards(mouse)
+            shield.rotateTowards(mouse)
             
             for(p of purple) {
                 if(swordSwing.overlaps(p)) {
@@ -807,6 +1025,7 @@ function use() {
                     splat.rotateMinTo(floor(Math.random()*360), 1000)
                     p.remove()
                     durab -= 1
+                    score += 1
                 }
             }
         }
@@ -831,7 +1050,7 @@ function enemyMove() {
     }
 }
 
-function move() {
+function move1() {
     playerHands.rotateTowards(mouse, 0.15)
 
     if(playerBody.y > 45 && playerBody.y < 3036) {
@@ -902,13 +1121,86 @@ function move() {
     }
 }
 
-function cameraMovement() {
+function move2() {
+    playerHands.rotateTowards(mouse, 0.15)
+
+    if(playerBody.y > 45 && playerBody.y < 4884) {
+        if(playerBody.y > 50){
+            if(kb.pressing('w')) {
+                if(playerBody.vel.y < playerSpeed) {
+                    playerBody.vel.y -= 1 * ease
+                    playerBody.rotateMinTo(90, 4)
+                }
+            }
+        }
+        if(playerBody.y < 4884) {
+            if(kb.pressing('s')) {
+                if(playerBody.vel.y < playerSpeed) {
+                    playerBody.vel.y += 1 * ease
+                    playerBody.rotateMinTo(270, 4)
+                }
+            }
+        }
+    }
+    else {
+        if(playerBody.y < 45) {
+            playerBody.vel.y = 1
+        }
+        if(playerBody.y >4884) {
+            playerBody.vel.y = -1
+        }
+    }
+
+    if(playerBody.x > 45 && playerBody.x < 4884) {
+        if(playerBody.x > 50) {
+            if(kb.pressing('a')) {
+                if(playerBody.vel.y < playerSpeed) {
+                    playerBody.vel.x -= 1 * ease
+                    playerBody.rotateMinTo(0, 4)
+                }
+            }
+        }
+        if(playerBody.x < 4884) {
+          if(kb.pressing('d')) {
+                if(playerBody.vel.y < playerSpeed) {
+                    playerBody.vel.x += 1 * ease
+                    playerBody.rotateMinTo(180, 4)
+                }
+            }  
+        }
+    }
+    else {
+        if(playerBody.x < 45) {
+            playerBody.vel.x = 1
+        }
+        if(playerBody.x >3036) {
+            playerBody.vel.x = -1
+        }
+    }
+
+    if(kb.pressing('w') && kb.pressing('d')) {
+        playerBody.rotateMinTo(135, 4)
+    }
+    else if(kb.pressing('w') && kb.pressing('a')) {
+        playerBody.rotateMinTo(45, 4)
+    }
+    else if(kb.pressing('s') && kb.pressing('a')) {
+        playerBody.rotateMinTo(315, 4)
+    }
+    else if(kb.pressing('s') && kb.pressing('d')) {
+        playerBody.rotateMinTo(225, 4)
+    }
+}
+
+function cameraMovement1() {
     if(playerBody.x < 700) {
         camera.x = 700
         healthBar.x = 700 - healthAdjust
         healthContainer.x = 700
         leftBorder.x = camera.x - width/2 + 5
         rightBorder.x = camera.x + width/2 - 5
+        scoreSprite.x = 350
+        ammoSprite.x = 1050
     }
     else if(playerBody.x > 2380) {
         camera.x = 2380
@@ -916,6 +1208,8 @@ function cameraMovement() {
         healthContainer.x = 2380
         leftBorder.x = camera.x - width/2 + 5
         rightBorder.x = camera.x + width/2 - 5
+        scoreSprite.x = 2030
+        ammoSprite.x = 2730
     }
     else {
         camera.x = playerBody.x
@@ -923,6 +1217,8 @@ function cameraMovement() {
         healthContainer.x = playerBody.x
         leftBorder.x = playerBody.x - width/2 + 5
         rightBorder.x = playerBody.x + width/2 - 5
+        scoreSprite.x = playerBody.x - 350
+        ammoSprite.x = playerBody.x + 350
     }
 
     if(playerBody.y < 450) {
@@ -931,6 +1227,8 @@ function cameraMovement() {
         healthContainer.y = 450 + 400
         topBorder.y = camera.y - height/2 + 5
         bottomBorder.y = camera.y + height/2 - 5
+        scoreSprite.y = 850
+        ammoSprite.y = 850
     }
     else if(playerBody.y > 2630) {
         camera.y = 2630
@@ -938,6 +1236,8 @@ function cameraMovement() {
         healthContainer.y = 2630 + 400
         topBorder.y = camera.y - height/2 + 5
         bottomBorder.y = camera.y + height/2 - 5
+        scoreSprite.y = 3030
+        ammoSprite.y = 3030
     }
     else {
         camera.y = playerBody.y
@@ -945,18 +1245,78 @@ function cameraMovement() {
         healthContainer.y = playerBody.y + 400
         topBorder.y = playerBody.y - height/2 + 5
         bottomBorder.y = playerBody.y + height/2 - 5
+        scoreSprite.y = playerBody.y + 400
+        ammoSprite.y = playerBody.y + 400
+    } 
+}
+
+function cameraMovement2() {
+    if(playerBody.x < 700) {
+        camera.x = 700
+        healthBar.x = 700 - healthAdjust
+        healthContainer.x = 700
+        leftBorder.x = camera.x - width/2 + 5
+        rightBorder.x = camera.x + width/2 - 5
+        scoreSprite.x = 350
+        ammoSprite.x = 1050
+    }
+    else if(playerBody.x > 4220) {
+        camera.x = 4220
+        healthBar.x = 4220 - healthAdjust
+        healthContainer.x = 4220
+        leftBorder.x = camera.x - width/2 + 5
+        rightBorder.x = camera.x + width/2 - 5
+        scoreSprite.x = 4220 - 350
+        ammoSprite.x = 4220 + 350
+    }
+    else {
+        camera.x = playerBody.x
+        healthBar.x = playerBody.x - healthAdjust
+        healthContainer.x = playerBody.x
+        leftBorder.x = playerBody.x - width/2 + 5
+        rightBorder.x = playerBody.x + width/2 - 5
+        scoreSprite.x = playerBody.x - 350
+        ammoSprite.x = playerBody.x + 350
+    }
+
+    if(playerBody.y < 450) {
+        camera.y = 450
+        healthBar.y = 450 + 400
+        healthContainer.y = 450 + 400
+        topBorder.y = camera.y - height/2 + 5
+        bottomBorder.y = camera.y + height/2 - 5
+        scoreSprite.y = 850
+        ammoSprite.y = 850
+    }
+    else if(playerBody.y > 4475) {
+        camera.y = 4475
+        healthBar.y = 4475 + 400
+        healthContainer.y = 4475 + 400
+        topBorder.y = camera.y - height/2 + 5
+        bottomBorder.y = camera.y + height/2 - 5
+        scoreSprite.y = 4475 + 400
+        ammoSprite.y = 4475 + 400
+    }
+    else {
+        camera.y = playerBody.y
+        healthBar.y = playerBody.y + 400
+        healthContainer.y = playerBody.y + 400
+        topBorder.y = playerBody.y - height/2 + 5
+        bottomBorder.y = playerBody.y + height/2 - 5
+        scoreSprite.y = playerBody.y + 400
+        ammoSprite.y = playerBody.y + 400
     } 
 }
 
 function createBorder() {
     border = new Group()
-    leftBorder = new border.Sprite(5,0,10,6400)
+    leftBorder = new border.Sprite(5,0,10,64000)
 
-    rightBorder = new border.Sprite(3076,0,10,6400)
+    rightBorder = new border.Sprite(3076,0,10,64000)
 
-    topBorder = new border.Sprite(0,5,6400,10)
+    topBorder = new border.Sprite(0,5,64000,10)
 
-    bottomBorder = new border.Sprite(0,3076,6400,10)
+    bottomBorder = new border.Sprite(0,3076,64000,10)
 
     border.collider = 'n'
     border.color = '#000'
@@ -967,6 +1327,12 @@ function createBorder() {
 function loadGame() {
     state = 1
     console.log('pressed' + state)
+    if(pHealth <= 0) {
+        retryButton.remove()
+        menuButton.remove()
+        pHealth = 100
+        healthAdjust = 0
+    }
 }
 
 function exit() {
@@ -975,6 +1341,14 @@ function exit() {
 
 function loadInstruct() {
     state = 2
+}
+
+function loadSelect() {
+    state = 3
+}
+
+function die() {
+    state = 4
 }
 
 function back() {
