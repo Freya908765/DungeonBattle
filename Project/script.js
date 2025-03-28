@@ -527,7 +527,7 @@ function drawMenu() {
     textFont(font)
     stroke(255)
     strokeWeight(0)
-    text("DUNGEON BATTLE", 230, 125)
+    text("VILLAGE VANGUARD", 180, 125)
     console.log('menu' + state)
 }
 
@@ -609,12 +609,12 @@ function drawInstruct() {
     text('map.', 120, 180)
     text('Weapons spawn randomly throughout levels and have limited', 120, 230)
     text('uses.', 120, 270)
-    text('Use WASD to move and the mouse to aim. Left click fires', 120, 320)
+    text('Use WASD to move and the mouse to aim Left click fires', 120, 320)
     text('arrows and uses the spear while right click throws the spear.', 120, 360)
     text('Getting hit by enemies will reduce your health get hit too many', 120, 410)
     text('times and you die.', 120, 450)
 
-    text('Deafeating enemies will score points, more enemies killed', 120, 500)
+    text('Defeating enemies will score points, more enemies killed', 120, 500)
     text('leads to a higher score', 120, 540)
 
     text('There are two levels to choose from level one is smaller and', 120, 590)
